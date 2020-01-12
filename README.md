@@ -3,3 +3,6 @@
  
  ## Dependencies
  This library depends on `Numpy`, `Scipy`, and `Matplotlib`. 
+
+## Awknowledgements
+Special thanks to my lab partner Forrest.
