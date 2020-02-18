@@ -13,15 +13,20 @@
  * Fit functions to wavenumber vs transition number
  * Plot fitted function, wavenumber vs transition number with title and proper axis labels
  
- ### New in 1.1.0
+ ### New in Upgrade 1.1.0
  * Automatic Peak Detection
  * Functions to fit peak wavenumbers/associated quantum numbers to functions
  * Updated plotting function to only label peaks with integer values to prevent overlap
  * Centered labels overtop their associated peaks.
- 
+ ### New in Bugfix 1.1.1
+ * Tested with another data set.
+ * Fixed Peak Detection algorithm to account for noise potentially larger than prominance. 
+   * This could have ruined filtering algorithm, as <sup>37</sup>Cl peaks would be higher than noise, meaning they would not be filtered. 
+ * Identify true initial P and R-Branch peaks. (J = 1, J = 0)
+   * These peaks were previously at risk at being filtered out since they can be lower than peaks on either side.
  
  ## Dependencies
  This library is written in `Python 3` and depends on `Numpy`, `Scipy`, and `Matplotlib`. 
 
-## Awknowledgements
-Special thanks to my lab partner Forrest.
+## Acknowledgements
+Special thanks to my lab partner Forrest, and colleague Erik who provided data for testing.
