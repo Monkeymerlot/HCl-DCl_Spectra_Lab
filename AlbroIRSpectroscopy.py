@@ -125,16 +125,48 @@ def detectpeaks(absorption, wavenumber, filter_peaks = True, height = None, dist
             print("Missing Filter Parameter: height not specified.")
             print("Using Automatic Filtering method instead.")
         #find all peaks (Cl35 and Cl37) and then filter out Cl37 peaks
-        peaks, _ = signal.find_peaks(absorption, height = 1.005*np.mean(absorption), prominence = 0.01)
+        peaks, props = signal.find_peaks(absorption, height = 1.005*np.mean(absorption), prominence = 0.015)
+        peak_prom = props['prominences']
+        
+        #set initial variables for filtering
         filt_peaks = []
+        
+        #calculate P and R Branch split
+        spacing = np.abs(peaks[:-1]-peaks[1:])
+        split = np.where(spacing == np.max(spacing))[0][0]
+        #assign which peak is the first P R-Branch peak
+        p_start = peaks[split+1]
+        r_start = peaks[split]
+        
+        #The first Peaks for P and R should be similar. If not, then we have 
+        #used the Cl-37 Peak for r_start, and want to use 1 to the left instead
+        if abs(peak_prom[split+1] - peak_prom[split])/(peak_prom[split+1]) > 0.20:
+            r_start = peaks[split-1]
+        
         for i in range(1, len(peaks)-1):
+            
             peak = peaks[i]
+            
             prev_peak = peaks[i-1]
+            
             next_peak = peaks[i+1]
-            if absorption[peak] < absorption[prev_peak] and absorption[peak] < absorption[next_peak]:
+            
+            #REDO using prominances instead of peak heights.
+            #calculate percentage of peak absorption for next peak and previous peak
+            prev_perc = abs(absorption[peak] - absorption[prev_peak])/(absorption[prev_peak])
+            next_perc = abs(absorption[peak] - absorption[next_peak])/(absorption[next_peak])
+            
+            if next_perc > 0.9:
+                next_peak = peaks[i+2]
+                next_perc = abs(absorption[peak] - absorption[next_peak])/(absorption[next_peak])
+
+            #Filtering peaks.
+            if absorption[peak] < absorption[prev_peak] and absorption[peak] < absorption[next_peak] and peak != p_start and peak != r_start:
+                #edge case correction for lowest j peaks in R and P
                 filt_peaks.append(i)
+
         peaks = np.delete(peaks, filt_peaks)
-    
+
     #want to separate out the P and R branches, largest spacing is in the middle
     spacing = np.abs(peaks[:-1]-peaks[1:])
     split = np.where(spacing == np.max(spacing))[0][0]
